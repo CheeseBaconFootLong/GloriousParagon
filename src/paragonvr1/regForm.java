@@ -6,6 +6,8 @@
 package paragonvr1;
 
 import config.dbConnector;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 /**
@@ -21,6 +23,29 @@ public class regForm extends javax.swing.JFrame {
         initComponents();
     }
 
+    String email, usname; 
+    
+    public boolean duplicateCheck(){
+        
+        dbConnector dbc = new dbConnector();
+        
+        try{
+            String query = "SELECT * FROM tbl_user  WHERE u_username = '" +un.getText()+ "' OR u_email = '" +em.getText()+"'";
+            ResultSet resultSet = dbc.getData(query);
+            
+            if(resultSet.next()){
+                return true;
+            }else{
+                return false;
+            }
+            
+        }catch(SQLException ex){
+            System.out.println(""+ex);
+            return false;
+        }
+        
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -179,7 +204,15 @@ public class regForm extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         
-        dbConnector dbc = new dbConnector();
+        if(fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty()
+                || un.getText().isEmpty() || pw.getText().isEmpty()){
+                JOptionPane.showMessageDialog(null, "All Fields are Required!");
+        }else if(pw.getText().length() < 8){
+            JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
+            pw.setText("");
+        }else{
+        
+            dbConnector dbc = new dbConnector();
         if(dbc.insertData("INSERT INTO tbl_user(u_fname, u_lname, u_email, u_username, u_password, u_type, u_status)"
                 + "VALUES('"+fn.getText()+"', '"+ln.getText()+"', '"+em.getText()+"', '"+un.getText()+"', '"+pw.getText()+"', '"+at.getSelectedItem()+"', '404HottieNotFound')"))
         {
@@ -191,6 +224,7 @@ public class regForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Connection Error!");
         }
         
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
