@@ -6,10 +6,12 @@
 package paragonvr1;
 
 import admin.adminDashboard;
+import config.Session;
 import config.dbConnector;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import user.userDashboard;
 
 /**
  *
@@ -24,16 +26,31 @@ public class loginForm extends javax.swing.JFrame {
         initComponents();
     }
     
+    static String status;
+    static String type;
+    
     public static boolean loginAcc(String username, String password){
         dbConnector connector = new dbConnector();
         try{
             String query = "SELECT * FROM tbl_user  WHERE u_username = '" + username + "' AND u_password = '" + password + "'";
             ResultSet resultSet = connector.getData(query);
-            return resultSet.next();
+            if(resultSet.next()){
+                status = resultSet.getString("u_status");
+                type = resultSet.getString("u_type");
+                Session sess = Session.getInstance();
+                sess.setUid(resultSet.getString("u_id"));
+                sess.setFname(resultSet.getString("u_fname"));
+                sess.setLname(resultSet.getString("u_lname"));
+                sess.setEmail(resultSet.getString("u_email"));
+                sess.setType(resultSet.getString("u_type"));
+                sess.setStatus(resultSet.getString("u_status"));
+                return true;
+            }else{
+                return false;
+            }
         }catch (SQLException ex) {
             return false;
         }
-
     }
 
     /**
@@ -126,14 +143,26 @@ public class loginForm extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         
         if(loginAcc(user.getText(), pass.getText())){
-            JOptionPane.showMessageDialog(null,"Login Success!");
-            adminDashboard ads = new adminDashboard();
-            ads.setVisible(true);
-            this.dispose();
+            if(!status.equals("Active")){
+                JOptionPane.showMessageDialog(null,"Account is not Active!");
+            }else{  
+                if(type.equals("Admin")){
+                    JOptionPane.showMessageDialog(null,"Login Success!");
+                    adminDashboard ads = new adminDashboard();
+                    ads.setVisible(true);
+                    this.dispose();
+                }else if(type.equals("User")){
+                    JOptionPane.showMessageDialog(null,"Login Success!");
+                    userDashboard usd = new userDashboard();
+                    usd.setVisible(true);
+                    this.dispose();
+                }else{
+                    JOptionPane.showMessageDialog(null,"Account not Found!");
+                }
+            }
         }else{
-            JOptionPane.showMessageDialog(null,"Login Failed!");
+            JOptionPane.showMessageDialog(null,"Invalid Account!");
         }
-        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void userActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userActionPerformed

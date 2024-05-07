@@ -23,18 +23,28 @@ public class regForm extends javax.swing.JFrame {
         initComponents();
     }
 
-    String email, usname; 
+     public static String email, usname;
     
     public boolean duplicateCheck(){
-        
         dbConnector dbc = new dbConnector();
-        
         try{
             String query = "SELECT * FROM tbl_user  WHERE u_username = '" +un.getText()+ "' OR u_email = '" +em.getText()+"'";
             ResultSet resultSet = dbc.getData(query);
             
             if(resultSet.next()){
+                email = resultSet.getString("u_email");
+                
+                if(email.equals(em.getText())){
+                JOptionPane.showMessageDialog(null, "Email is already used!");
+                em.setText("");
+                }
+                usname = resultSet.getString("u_email");
+                if(usname.equals(un.getText())){
+                JOptionPane.showMessageDialog(null, "Username is already used!");
+                un.setText("");
+                }
                 return true;
+                
             }else{
                 return false;
             }
@@ -203,15 +213,17 @@ public class regForm extends javax.swing.JFrame {
     }//GEN-LAST:event_emActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        
+         
         if(fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty()
                 || un.getText().isEmpty() || pw.getText().isEmpty()){
                 JOptionPane.showMessageDialog(null, "All Fields are Required!");
         }else if(pw.getText().length() < 8){
             JOptionPane.showMessageDialog(null, "Password character should be 8 above!");
             pw.setText("");
-        }else{
+        }else if(duplicateCheck()){
+            System.out.println("Duplicate Exist");
         
+        }else{
             dbConnector dbc = new dbConnector();
         if(dbc.insertData("INSERT INTO tbl_user(u_fname, u_lname, u_email, u_username, u_password, u_type, u_status)"
                 + "VALUES('"+fn.getText()+"', '"+ln.getText()+"', '"+em.getText()+"', '"+un.getText()+"', '"+pw.getText()+"', '"+at.getSelectedItem()+"', '404HottieNotFound')"))
